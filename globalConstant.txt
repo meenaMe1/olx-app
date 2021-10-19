@@ -1,0 +1,15 @@
+@Component
+@PropertySource({"classpath:globalconstants.properties"})
+@ConfigurationProperties
+public class GlobalConstants {
+
+	private String ANDROID_NOTIFICATION_URL;  
+	
+	public String getANDROID_NOTIFICATION_URL() {
+		return ANDROID_NOTIFICATION_URL;
+	}
+	public void setANDROID_NOTIFICATION_URL(String aNDROID_NOTIFICATION_URL) {
+		ANDROID_NOTIFICATION_URL = aNDROID_NOTIFICATION_URL;
+	}
+	
+	}

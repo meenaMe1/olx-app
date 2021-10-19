@@ -1,0 +1,37 @@
+# Oracle Connection
+server.port=98
+spring.application.name=test-service
+spring.datasource.jdbcUrl=jdbc:oracle:thin:@10.42.42.42:1010:Dev
+spring.datasource.username= testuser
+spring.datasource.password=user
+spring.datasource.driverClassName=oracle.jdbc.driver.OracleDriver
+
+
+#spring.datasource.jdbcUrl=jdbc:oracle:thin:@${ORACLE_DB_URL}:${ORACLE_DB_PORT}:${ORACLE_DB_NAME}
+#spring.datasource.username= ${ORACLE_USERNAME}
+#spring.datasource.password=${ORACLE_PASSWORD}
+spring.datasource.driverClassName=oracle.jdbc.driver.OracleDriver
+
+# Mysql Connection
+
+#spring.mysql.jdbc-url=jdbc:mysql://${MYSQL_DB_URL}:${MYSQL_DB_PORT}/${MYSQL_DB_NAME}
+#spring.mysql.username= ${MYSQL_USERNAME}
+#spring.mysql.password=${MYSQL_PASSWORD}
+spring.mysql.jdbc-url=jdbc:mysql://10.42.42.50:3306/user
+spring.mysql.username= root
+spring.mysql.password=user
+spring.mysql.driverClassName=com.mysql.cj.jdbc.Driver
+
+
+spring.mysql2.jdbc-url=jdbc:mysql://10.42.42.50:3306/testDb
+spring.mysql2.username= testroot
+spring.mysql2.password= user
+spring.mysql2.driverClassName=com.mysql.cj.jdbc.Driver
+
+
+#hibernate configuration
+
+spring.jpa.hibernate.ddl-auto=none
+
+
+

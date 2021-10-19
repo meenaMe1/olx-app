@@ -1,0 +1,45 @@
+@RestController
+@CrossOrigin(origins="*")
+public class TestController {
+	private Logger log=LoggerFactory.getLogger(MiscellanousController.class);
+	
+	@Autowired
+	SecurityUtil securityUtil;
+	
+	@Autowired 
+	ResponseList responseList;
+	
+	@Autowired
+	LeaveSSOResponse leaveSSO;
+	
+	@Autowired
+	IServices iServices;
+	
+	@PostMapping(value="/getEmp")
+	public BaseResponse getEmp(@RequestHeader(required= false) String X_Requested_With,@RequestHeader(required= false) String encryptedToken,HttpServletRequest request,HttpServletResponse response) {
+		log.info("Start of getEmp :"+new Date());
+		BaseResponse baseResponse = new BaseResponse();
+		ServiceEntryDetails serviceEntry= new ServiceEntryDetails();
+		try {
+		if(securityUtil.validateParameters(X_Requested_With)&&securityUtil.validateParameters(encryptedToken)) {
+		EncryptedBean encryptedBean=securityUtil.validateEncryptedToken(encryptedToken, X_Requested_With);
+		if(encryptedBean!=null) {
+			serviceEntry.setUserId(encryptedBean.getEmployeeId());
+			serviceEntry.setModuleName("FAQ");
+			serviceEntry.setServiceName("getEmp");
+			iServices.insertServiceEntry(serviceEntry);
+			baseResponse=iServices.getEmp();
+		}else
+			baseResponse=securityUtil.baseResponse(-1);
+		
+		}else 
+			baseResponse=securityUtil.baseResponse(-3);
+		return baseResponse;
+		}catch(Exception e) {
+			
+			log.error("error in getEmp :"+e.getStackTrace());
+			return baseResponse=securityUtil.baseResponse(-2);
+		}
+	}
+	
+	}

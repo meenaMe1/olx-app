@@ -1,0 +1,61 @@
+package com.zensar.zenhelp.configuration;
+
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories
+public class DBConfiguration {
+
+	@Bean
+	public JpaVendorAdapter getJpaVendorAdapter2() {
+		JpaVendorAdapter adapter=new HibernateJpaVendorAdapter();
+		return adapter;
+	}
+	
+	@Bean(name = "mysqlDb2")
+	@ConfigurationProperties(prefix = "spring.mysql2")
+	public DataSource mysqlDataSource() {
+		System.out.println("****** connection created successfully *******");
+		return DataSourceBuilder.create().build();
+	}
+	
+	
+	@Bean(name = "mysqljpa2")
+	public LocalContainerEntityManagerFactoryBean mySqlEntityManagerFactory(@Qualifier("mysqlDb2") DataSource dataSource) {
+		
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setDataSource(dataSource);
+        entityManagerFactoryBean.setJpaVendorAdapter(getJpaVendorAdapter2());
+        entityManagerFactoryBean.setPersistenceUnitName("MYSQL_DB2");
+        entityManagerFactoryBean.setPackagesToScan("com.zensar.zenhelp");
+        entityManagerFactoryBean.setJpaProperties(mySqlJpaProperties1());
+
+		return entityManagerFactoryBean;
+	}
+	
+	
+	private Properties mySqlJpaProperties1() {
+        Properties properties = new Properties();
+        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+      //  properties.put("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect");
+        return properties;        
+}	
+	
+}

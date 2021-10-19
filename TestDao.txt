@@ -1,0 +1,149 @@
+@Component
+@Repository
+@Transactional
+public class TestDaoImpl implements ITestDao {
+	private Logger log = LoggerFactory.getLogger(MiscellaneousDaoImpl.class);
+
+	/*
+	 * @Autowired
+	 * 
+	 * @PersistenceContext(unitName = "MYSQL_DB") private EntityManagerFactory
+	 * entityManager;
+	 */
+	
+	@Autowired
+	private GlobalConstants globalConstants;
+
+	@Autowired
+	private QueryConstants queryConstants;
+
+	@PersistenceContext(unitName = "ORACLE_DB")
+	private EntityManager updateSession;
+
+	@PersistenceContext(unitName = "MYSQL_DB")
+	private EntityManager mySqlSession;
+
+	@PersistenceContext(unitName = "MYSQL_DB")
+	private EntityManager mySqlSession2;
+
+	@PersistenceContext(unitName = "MYSQL_DB2")
+	private EntityManager mySqlSession1;
+	
+	@Autowired
+	private SecurityUtil securityUtil;
+
+	@Override
+	public List<FaqMaster> getFaqs() {
+		log.info("start of getFaqsDao :" + new Date());
+		List<FaqMaster> faqMasters = new ArrayList<>();
+		List<Object[]> resultList = null;
+		try {
+			resultList = mySqlSession.createNativeQuery(queryConstants.getFaqs()).getResultList();
+			for (Object[] result : resultList) {
+				FaqMaster faqMaster = new FaqMaster();
+				faqMaster.setQuestion(result[0].toString());
+				faqMaster.setAnswer(result[1].toString());
+				faqMasters.add(faqMaster);
+			}
+		} catch (Exception e) {
+			log.error("error in getFaqsDao :" + e.getStackTrace());
+			faqMasters = null;
+		} finally {
+			if (mySqlSession.isOpen())
+				mySqlSession.close();
+		}
+
+		return faqMasters;
+	}
+
+	@Override
+	public List<FaqsDO> getDepartmentListFaqsDao() {
+		log.info("start of getFaqsDao :" + new Date());
+		List<FaqsDO> faqMasters = new ArrayList<>();
+		List<Object[]> resultList = null;
+		try {
+			resultList = mySqlSession.createNativeQuery(queryConstants.getDepartmentList())
+					.setParameter("activeStatus", 1).getResultList();
+			for (Object[] result : resultList) {
+				FaqsDO faqMaster = new FaqsDO();
+				faqMaster.setDepartmentId(Integer.parseInt(result[0].toString()));
+				faqMaster.setDepartmentName(result[1].toString());
+				faqMaster.setIcon(result[2].toString());
+				faqMasters.add(faqMaster);
+			}
+		} catch (Exception e) {
+			log.error("error in getFaqsDao :" + e.getStackTrace());
+			e.printStackTrace();
+			faqMasters = null;
+		} finally {
+			if (mySqlSession.isOpen())
+				mySqlSession.close();
+		}
+
+		return faqMasters;
+	}
+
+	@Override
+	public List<FaqsDO> getFaqDataDao(int departmentId) {
+		List<FaqsDO> faqsDOs = new ArrayList<>();
+		List<Object[]> resultList = null;
+		try {
+			if (departmentId == 0)
+				resultList = mySqlSession.createNativeQuery(queryConstants.getAllFaqs()).getResultList();
+			else
+				resultList = mySqlSession.createNativeQuery(queryConstants.getFaqData())
+						.setParameter("departmentId", departmentId).getResultList();
+			for (Object[] result : resultList) {
+				FaqsDO faqsDO = new FaqsDO();
+				faqsDO.setQuestion(result[0].toString());
+				faqsDO.setAnswer(result[1].toString());
+				faqsDOs.add(faqsDO);
+			}
+		} catch (Exception e) {
+			log.error("error in getFaqsDao :" + e.getStackTrace());
+			e.printStackTrace();
+			faqsDOs = null;
+		} finally {
+			if (mySqlSession.isOpen())
+				mySqlSession.close();
+		}
+
+		return faqsDOs;
+	}
+
+	@Override
+	public int checkRegisteredDeviceId(int userId) {
+		Object regUserId = null;
+		try {
+			regUserId = mySqlSession.createNativeQuery(queryConstants.getCheckDeviceRegistrationOfUser())
+					.setParameter("userId", userId).getSingleResult();
+		} catch (NoResultException e) {
+			log.error("error in checkRegisteredDeviceId :" + e.getStackTrace());
+			e.printStackTrace();
+			regUserId = "0";
+
+		} finally {
+			if (mySqlSession.isOpen())
+				mySqlSession.close();
+
+		}
+		return Integer.parseInt(regUserId.toString());
+	}
+
+	@Override
+	public int updateRegDeviceId(int userId, String deviceId, String deviceType) {
+		int result = 0;
+		try {
+			result = mySqlSession.createNativeQuery(queryConstants.getUpdateRegDeviceId())
+					.setParameter("userId", userId).setParameter("regDeviceId", deviceId)
+					.setParameter("deviceType", deviceType).executeUpdate();
+		} catch (NoResultException e) {
+			log.info("exception in query : " + queryConstants.getUpdateRegDeviceId());
+			return 0;
+		} finally {
+			if (mySqlSession.isOpen())
+				mySqlSession.close();
+		}
+		return result;
+	}
+}

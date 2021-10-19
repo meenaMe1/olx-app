@@ -1,0 +1,173 @@
+pipeline {
+    agent any
+    environment {
+            JOB="${env.JOB_BASE_NAME}"
+        }
+    stages {
+        stage ('Docker Image Backup') {
+
+            steps {
+               sh '$STAGE_SERVER scp $MICROSERVICES/associateself/target/$JOB_BASE_NAME.jar root@$PROD:$JAR_BACKUP_DIR/$JOB_BASE_NAME/${JOB_BASE_NAME}-${BUILD_TIMESTAMP}.jar'
+			   
+               sh '''printf "\\n\\n############### Converting image into tar ############\\n"
+                     $STAGE_SERVER docker save -o $IMAGE_DIR/$JOB_BASE_NAME.tar $JOB_BASE_NAME'''
+
+               sh '''printf "\\n\\n############### Change permission of file $IMAGE_DIR/$JOB_BASE_NAME.tar ############\\n"
+                     $STAGE_SERVER sudo chmod 777 $IMAGE_DIR/$JOB_BASE_NAME.tar'''
+
+            }
+        }
+         
+        stage ('Copying image into production') {
+
+            steps {
+                sh '''printf "\\n\\n############### Coping image $JOB_BASE_NAME into production server $PROD_IMAGE_DIR ############\\n"
+                    $STAGE_SERVER scp $IMAGE_DIR/$JOB_BASE_NAME.tar root@10.42.204.231:$PROD_IMAGE_DIR/'''
+					
+			    sh '''printf "\\n\\n############### Coping image $JOB_BASE_NAME into production server $PROD2 $PROD_IMAGE_DIR ############\\n"
+					 $STAGE_SERVER scp $IMAGE_DIR/$JOB_BASE_NAME.tar $PROD2:$PROD_IMAGE_DIR/'''
+					
+			    sh '''printf "\\n\\n############### Coping image $JOB_BASE_NAME into production server $PROD3 $PROD_IMAGE_DIR ############\\n"
+					 $STAGE_SERVER scp $IMAGE_DIR/$JOB_BASE_NAME.tar $PROD3:$PROD_IMAGE_DIR/'''
+					
+				sh '''printf "\\n\\n############### Coping image $JOB_BASE_NAME into production server $PROD4 $PROD_IMAGE_DIR ############\\n"
+					 $STAGE_SERVER scp $IMAGE_DIR/$JOB_BASE_NAME.tar $PROD4:$PROD_IMAGE_DIR/'''
+					
+				sh '''printf "\\n\\n############### Coping image $JOB_BASE_NAME into production server $PROD5 $PROD_IMAGE_DIR ############\\n"
+					 $STAGE_SERVER scp $IMAGE_DIR/$JOB_BASE_NAME.tar $PROD5:$PROD_IMAGE_DIR/'''
+                
+                sh '''if $PROD_SERVER docker ps | grep " $JOB_BASE_NAME"; then
+                              printf "\\n\\n########### Stoping existing $JOB_BASE_NAME ###############\\n"
+                              $PROD_SERVER docker stop $JOB_BASE_NAME
+                    else
+                      printf "\\n\\n########### Container $JOB_BASE_NAME is not running ###############\\n"
+                    fi'''
+					
+			              
+                	sh '''if ssh  $PROD2 sudo docker ps | grep " $JOB_BASE_NAME"; then
+                        printf "\\n\\n########### Stoping existing $JOB_BASE_NAME ###############\\n"
+                        ssh $PROD2 sudo docker stop $JOB_BASE_NAME
+                    else
+						printf "\\n\\n########### Container $JOB_BASE_NAME is not running ###############\\n"
+                    fi'''
+								
+				sh '''if ssh  $PROD3 sudo docker ps | grep " $JOB_BASE_NAME"; then
+                        printf "\\n\\n########### Stoping existing $JOB_BASE_NAME ###############\\n"
+                        ssh $PROD3 sudo docker stop $JOB_BASE_NAME
+                    else
+						printf "\\n\\n########### Container $JOB_BASE_NAME is not running ###############\\n"
+                    fi'''
+					
+				sh '''if ssh  $PROD4 sudo docker ps | grep " $JOB_BASE_NAME"; then
+                        printf "\\n\\n########### Stoping existing $JOB_BASE_NAME ###############\\n"
+                        ssh $PROD4 sudo docker stop $JOB_BASE_NAME
+                    else
+						printf "\\n\\n########### Container $JOB_BASE_NAME is not running ###############\\n"
+                    fi'''
+					
+				sh '''if ssh  $PROD5 sudo docker ps | grep " $JOB_BASE_NAME"; then
+                        printf "\\n\\n########### Stoping existing $JOB_BASE_NAME ###############\\n"
+                        ssh $PROD5 sudo docker stop $JOB_BASE_NAME
+                    else
+						printf "\\n\\n########### Container $JOB_BASE_NAME is not running ###############\\n"
+                    fi'''
+
+
+            }
+        }
+        stage ('Loading image into docker') {
+
+            steps {
+             sh '''printf "\\n\\n########### load image $JOB_BASE_NAME from tar file $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar ###############\\n"
+                   $PROD_SERVER docker load -i $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar'''
+				   
+			 sh '''printf "\\n\\n########### load image $JOB_BASE_NAME from tar file $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar on $PROD2 ###############\\n"
+					ssh $PROD2 sudo docker load -i $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar'''				   
+						   
+			sh '''printf "\\n\\n########### load image $JOB_BASE_NAME from tar file $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar on $PROD3 ###############\\n"
+					ssh $PROD3 sudo docker load -i $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar'''
+										
+			sh '''printf "\\n\\n########### load image $JOB_BASE_NAME from tar file $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar on $PROD4 ###############\\n"
+					ssh $PROD4 sudo docker load -i $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar'''
+					
+			sh '''printf "\\n\\n########### load image $JOB_BASE_NAME from tar file $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar on $PROD5 ###############\\n"
+					ssh $PROD5 sudo docker load -i $PROD_IMAGE_DIR/$JOB_BASE_NAME.tar'''
+
+            }
+        }
+        stage ('Start docker Image') {
+
+            steps {
+             
+             sh '''printf "\\n\\n########### Running container $JOB_BASE_NAME ###############\\n"
+                   $PROD_SERVER docker run \
+                   --env ORACLE_DB_URL=10.42.4.188 \
+				   --env ORACLE_DB_PORT=1522 \
+				   --env ORACLE_DB_NAME=PROD \
+				   --env ORACLE_USERNAME=G4CUSTOMPD \
+				   --env ORACLE_PASSWORD=G4pd0Cup \
+				   --env MYSQL_DB_URL=10.42.4.201 \
+				   --env MYSQL_DB_PORT=3306 \
+				   --env MYSQL_DB_NAME=zentalent \
+				   --env MYSQL_USERNAME=tazrootuser \
+				   --env MYSQL_PASSWORD=QYJ@j6Tu \
+				   --env HOST_IP=10.42.204.231 \
+				   --env LOGIN_SERVER_IP=10.42.206.17 \
+				   --env MYSQL_FIN_DB_URL=10.42.204.171 \
+                   --env MYSQL_FIN_DB_PORT=3306 \
+                   --env MYSQL_FIN_DB_NAME=ZenCFO \
+                   --env MYSQL_FIN_USERNAME=financeuser \
+                   --env MYSQL_FIN_PASSWORD=4G0@Xs7A \
+                   --env MYSQL_DEAVOR_DB_URL=10.42.206.141 \
+				   --env MYSQL_DEAVOR_DB_PORT=3306 \
+				   --env MYSQL_DEAVOR_DB_NAME=epms_db_dump_new \
+				   --env MYSQL_DEAVOR_USERNAME=zendeavoradmin \
+				   --env MYSQL_DEAVOR_PASSWORD=8s6@qX2z \
+                   -d  -e "TZ=Asia/Kolkata" -v /upload:/upload --rm=true --name=$JOB_BASE_NAME --publish=85:85 $JOB_BASE_NAME:latest'''
+				   
+				 sh '''printf "\\n\\n########### Running container $JOB_BASE_NAME on $PROD2 ###############\\n"
+					ssh $PROD2 sudo docker run \
+					--env-file /usr/local/microservices/set.env \
+					-d -e "TZ=Asia/Kolkata" -v /upload:/upload --rm=true --name=$JOB_BASE_NAME  --publish=85:85 $JOB_BASE_NAME:latest'''
+                         
+				sh '''printf "\\n\\n########### Running container $JOB_BASE_NAME on $PROD3 ###############\\n"
+					ssh $PROD3 sudo docker run \
+					--env-file /usr/local/microservices/set.env \
+					-d -e "TZ=Asia/Kolkata" -v /upload:/upload --rm=true --name=$JOB_BASE_NAME  --publish=85:85 $JOB_BASE_NAME:latest'''
+						
+				sh '''printf "\\n\\n########### Running container $JOB_BASE_NAME on $PROD4 ###############\\n"
+					ssh $PROD4 sudo docker run \
+					--env-file /usr/local/microservices/set.env \
+					-d -e "TZ=Asia/Kolkata" -v /upload:/upload --rm=true --name=$JOB_BASE_NAME  --publish=85:85 $JOB_BASE_NAME:latest'''
+				
+				sh '''printf "\\n\\n########### Running container $JOB_BASE_NAME on $PROD5 ###############\\n"
+					ssh $PROD5 sudo docker run \
+					--env-file /usr/local/microservices/set.env \
+					-d -e "TZ=Asia/Kolkata" -v /upload:/upload --rm=true --name=$JOB_BASE_NAME  --publish=85:85 $JOB_BASE_NAME:latest'''
+             
+            }
+        }
+        stage ('associates-self-service-zenhelp deployed successfully') {
+
+            steps {
+                sh '''printf "\\n\\n########### check log file $LOG_FILE_DIR/$JOB_BASE_NAME.log for $JOB_BASE_NAME #################\\n"
+                      $PROD_SERVER "docker logs $JOB_BASE_NAME  --follow>>$DOCKER_LOGS/$JOB_BASE_NAME.log  2>&1 &"'''
+					  
+				 sh '''printf "\\n\\n########### check log file $LOG_FILE_DIR/$JOB_BASE_NAME #################\\n"
+                    ssh $PROD2 "sudo docker logs $JOB_BASE_NAME  --follow>>$DOCKER_LOGS/${JOB_BASE_NAME}/${JOB_BASE_NAME}_${BUILD_TIMESTAMP}.log  2>&1 &"'''
+					  
+				sh '''printf "\\n\\n########### check log file $LOG_FILE_DIR/$JOB_BASE_NAME #################\\n"
+                    ssh $PROD3 "sudo docker logs $JOB_BASE_NAME  --follow>>$DOCKER_LOGS/${JOB_BASE_NAME}/${JOB_BASE_NAME}_${BUILD_TIMESTAMP}.log  2>&1 &"'''
+					
+				sh '''printf "\\n\\n########### check log file $LOG_FILE_DIR/$JOB_BASE_NAME #################\\n"
+                    ssh $PROD4 "sudo docker logs $JOB_BASE_NAME  --follow>>$DOCKER_LOGS/${JOB_BASE_NAME}/${JOB_BASE_NAME}_${BUILD_TIMESTAMP}.log  2>&1 &"'''
+                    
+                sh '''printf "\\n\\n########### check log file $LOG_FILE_DIR/$JOB_BASE_NAME #################\\n"
+                    ssh $PROD5 "sudo docker logs $JOB_BASE_NAME  --follow>>$DOCKER_LOGS/${JOB_BASE_NAME}/${JOB_BASE_NAME}_${BUILD_TIMESTAMP}.log  2>&1 &"'''
+
+            }
+
+
+        }
+    }
+}

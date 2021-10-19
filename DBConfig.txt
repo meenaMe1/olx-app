@@ -1,0 +1,84 @@
+package com.zensar.zenhelp.configuration;
+
+import java.util.Properties;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+
+@Configuration
+public class DatabaseConfiguration {
+	
+	
+	@Bean(name = "oracleDb")
+	@ConfigurationProperties(prefix = "spring.datasource")
+	public DataSource oracleDataSource() {
+		System.out.println("****** connection created successfully *******");
+		return DataSourceBuilder.create().build();
+	}
+	
+	
+	@Bean(name = "oraclejpa")
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("oracleDb") DataSource dataSource) {
+		
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setDataSource(dataSource);
+        entityManagerFactoryBean.setJpaVendorAdapter(getJpaVendorAdapter());
+        entityManagerFactoryBean.setPersistenceUnitName("ORACLE_DB");
+        entityManagerFactoryBean.setPackagesToScan("com.zensar.zenhelp");
+        entityManagerFactoryBean.setJpaProperties(jpaProperties());
+
+		return entityManagerFactoryBean;
+	}
+	
+	@Primary
+	@Bean
+	public JpaVendorAdapter getJpaVendorAdapter() {
+		JpaVendorAdapter adapter=new HibernateJpaVendorAdapter();
+		return adapter;
+	}
+	
+	private Properties jpaProperties() {
+        Properties properties = new Properties();
+      //  properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect");
+        return properties;        
+}	
+	@Primary
+	@Bean(name = "mysqlDb")
+	@ConfigurationProperties(prefix = "spring.mysql")
+	
+	public DataSource mysqlDataSource() {
+		System.out.println("****** connection created successfully *******");
+		return DataSourceBuilder.create().build();
+	}
+	
+	@Primary
+	@Bean(name = "mysqljpa")
+	public LocalContainerEntityManagerFactoryBean mySqlEntityManagerFactory(@Qualifier("mysqlDb") DataSource dataSource) {
+		
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setDataSource(dataSource);
+        entityManagerFactoryBean.setJpaVendorAdapter(getJpaVendorAdapter());
+        entityManagerFactoryBean.setPersistenceUnitName("MYSQL_DB");
+        entityManagerFactoryBean.setPackagesToScan("com.zensar.zenhelp");
+        entityManagerFactoryBean.setJpaProperties(mySqlJpaProperties());
+
+		return entityManagerFactoryBean;
+	}
+	@Primary
+	private Properties mySqlJpaProperties() {
+        Properties properties = new Properties();
+        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+      //  properties.put("hibernate.dialect", "org.hibernate.dialect.Oracle10gDialect");
+        return properties;        
+}	
+
+
+}
