@@ -1,0 +1,48 @@
+SELECT
+  `uservaccine`.`userId` AS `userId`,
+  (CASE WHEN ((`uservaccine`.`isVaccinated` = 1) AND (`uservaccine`.`vaccinationDose1Date` IS NOT NULL)) THEN '1st' END) AS `Dose`,
+  (CASE WHEN ((`uservaccine`.`isVaccinated` = 1) AND (`uservaccine`.`vaccinationDose1Date` IS NOT NULL)) THEN `uservaccine`.`vaccinationDose1Date` END) AS `vaccineDate`,
+  `vm`.`vaccineName`     AS `vaccineName`,
+  `cs`.`currentCity`     AS `currentCity`
+FROM ((`uservaccinationdetails` `uservaccine`
+    JOIN `vaccinemaster` `vm`
+      ON ((`uservaccine`.`vaccineId` = `vm`.`vaccineId`)))
+   LEFT JOIN `coronasurveydetails` `cs`
+     ON ((`cs`.`userId` = `uservaccine`.`userId`)))
+	 LEFT JOIN userinfo u ON uservaccine.userId=u.userId
+WHERE ((`uservaccine`.`isVaccinated` = 1)
+       AND (`uservaccine`.`vaccinationDose1Date` IS NOT NULL))AND u.activeStatus=1 UNION
+	   SELECT
+                     `uservaccine`.`userId`  AS `userId`,
+                                                                      (CASE WHEN ((`uservaccine`.`isVaccinated` = 1) AND (`uservaccine`.`vaccinationDose2Date` IS NOT NULL)) THEN '2nd' END) AS `Dose`,
+                                                                      (CASE WHEN ((`uservaccine`.`isVaccinated` = 1) AND (`uservaccine`.`vaccinationDose2Date` IS NOT NULL)) THEN `uservaccine`.`vaccinationDose2Date` END) AS `vaccineDate`,
+                                                                      `vm`.`vaccineName`      AS `vaccineName`,
+                                                                      `cs`.`currentCity`      AS `currentCity`
+                                                                    FROM ((`uservaccinationdetails` `uservaccine`
+                                                                        JOIN `vaccinemaster` `vm`
+                                                                          ON ((`uservaccine`.`vaccineId` = `vm`.`vaccineId`)))
+                                                                       LEFT JOIN `coronasurveydetails` `cs`
+                                                                         ON ((`cs`.`userId` = `uservaccine`.`userId`)))
+																		 LEFT JOIN userinfo u ON uservaccine.userId=u.userId
+                                                                    WHERE ((`uservaccine`.`isVaccinated` = 1)
+                                                                           AND (`uservaccine`.`vaccinationDose2Date` IS NOT NULL)) AND u.activeStatus=1
+ORDER BY `userId`
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------
+
+SELECT
+  `uservaccine`.`userId` AS `userId`,
+  u.userName,
+  `cs`.`currentCity`     AS `currentCity`
+FROM `uservaccinationdetails` `uservaccine`
+   LEFT JOIN `coronasurveydetails` `cs`
+     ON cs.`userId` = `uservaccine`.`userId`
+	 LEFT JOIN userinfo u ON uservaccine.userId=u.userId
+WHERE (`uservaccine`.`isVaccinated` = 0)
+      AND u.activeStatus=1 GROUP BY `uservaccine`.`userId`

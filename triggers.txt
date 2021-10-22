@@ -1,0 +1,73 @@
+DELIMITER $$
+
+USE `ZenTalent`$$
+
+DROP TRIGGER /*!50032 IF EXISTS */ `before_licenceagreement_delete`$$
+
+CREATE
+    /*!50017 DEFINER = 'tazdevuser'@'%' */
+    TRIGGER `before_licenceagreement_delete` BEFORE DELETE ON `licenceagreement` 
+    FOR EACH ROW BEGIN
+	INSERT INTO licenceagreementhistory VALUES (OLD.id,OLD.userId,OLD.isLicenceAgreementSubmitted,OLD.activeStatus,OLD.rowAddedStp,OLD.rowUpdatedStp,OLD.rowAddedUser,OLD.rowUpdatedUser);
+    END;
+$$
+
+DELIMITER ; 
+
+
+--------------------------------------
+
+DELIMITER $$
+
+USE `ZenTalent`$$
+
+DROP TRIGGER /*!50032 IF EXISTS */ `insert_vaccinedata_trigger`$$
+
+CREATE
+    /*!50017 DEFINER = 'tazdevuser'@'%' */
+    TRIGGER `insert_vaccinedata_trigger` AFTER INSERT ON `userVaccinationDetails` 
+    FOR EACH ROW UPDATE vaccinedashboard SET totalactiveuser=(SELECT COUNT(userId) FROM UserInfo info LEFT JOIN `rtoConsentPayrollMapping` rto ON info.payroll=rto.payroll
+		WHERE mappingCountry='India' AND band NOT IN('IT', 'I0','IS','M3BI') AND info.activeStatus=1), 
+firstdosetaken=(SELECT COUNT(v.userId) FROM userVaccinationDetails v JOIN UserInfo u ON u.userId=v.userId LEFT JOIN `rtoConsentPayrollMapping` payMap 
+		ON payMap.payroll=u.payroll WHERE payMap.mappingCountry='India' AND v.isVaccinated=1 AND v.vaccinationDose1Date IS NOT NULL 
+		AND v.vaccinationDose2Date IS NULL AND band NOT IN('IT', 'I0','IS','M3BI') AND u.activeStatus=1),
+seconddosetaken=(SELECT COUNT(v.userId) FROM userVaccinationDetails v JOIN UserInfo u ON u.userId=v.userId LEFT JOIN `rtoConsentPayrollMapping` payMap 
+		 ON payMap.payroll=u.payroll WHERE payMap.mappingCountry='India' AND v.isVaccinated=1 AND v.vaccinationDose1Date IS NOT NULL 
+		 AND v.vaccinationDose2Date IS NOT NULL AND band NOT IN('IT', 'I0','IS','M3BI')AND u.activeStatus=1),
+firstdosetakenpercent=(firstdosetaken*100.0/totalactiveuser),
+seconddosetakenpercent=(seconddosetaken*100.0/totalactiveuser)
+WHERE dashboardid=1;
+$$
+
+DELIMITER ;
+
+
+
+------------------------
+
+
+
+
+DELIMITER $$
+
+USE `ZenTalent`$$
+
+DROP TRIGGER /*!50032 IF EXISTS */ `update_vaccinedata_trigger`$$
+
+CREATE
+    /*!50017 DEFINER = 'tazdevuser'@'%' */
+    TRIGGER `update_vaccinedata_trigger` AFTER UPDATE ON `userVaccinationDetails` 
+    FOR EACH ROW UPDATE vaccinedashboard SET totalactiveuser=(SELECT COUNT(userId) FROM UserInfo info LEFT JOIN `rtoConsentPayrollMapping` rto ON info.payroll=rto.payroll
+		WHERE mappingCountry='India' AND band NOT IN('IT', 'I0','IS','M3BI') AND info.activeStatus=1), 
+firstdosetaken=(SELECT COUNT(v.userId) FROM userVaccinationDetails v JOIN UserInfo u ON u.userId=v.userId LEFT JOIN `rtoConsentPayrollMapping` payMap 
+		ON payMap.payroll=u.payroll WHERE payMap.mappingCountry='India' AND v.isVaccinated=1 AND v.vaccinationDose1Date IS NOT NULL 
+		AND v.vaccinationDose2Date IS NULL AND band NOT IN('IT', 'I0','IS','M3BI') AND u.activeStatus=1),
+seconddosetaken=(SELECT COUNT(v.userId) FROM userVaccinationDetails v JOIN UserInfo u ON u.userId=v.userId LEFT JOIN `rtoConsentPayrollMapping` payMap 
+		 ON payMap.payroll=u.payroll WHERE payMap.mappingCountry='India' AND v.isVaccinated=1 AND v.vaccinationDose1Date IS NOT NULL 
+		 AND v.vaccinationDose2Date IS NOT NULL AND band NOT IN('IT', 'I0','IS','M3BI')AND u.activeStatus=1),
+firstdosetakenpercent=(firstdosetaken*100.0/totalactiveuser),
+seconddosetakenpercent=(seconddosetaken*100.0/totalactiveuser)
+WHERE dashboardid=1;
+$$
+
+DELIMITER ;

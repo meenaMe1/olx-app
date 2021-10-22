@@ -1,0 +1,18 @@
+SELECT s.userId ,u.userName,u.EmailId ,'ZenDeavor' AS moduleName,u.activeStatus FROM `ServiceEntry` s LEFT JOIN UserInfo u ON s.userId = u.userId
+WHERE s.moduleId =20 AND s.serviceId =53 AND MONTH(s.`rowAddStp`)>=4 AND YEAR(s.rowAddStp)=2021 AND u.activeStatus=1 GROUP BY s.userId
+UNION 
+SELECT hist.userId ,us.userName,us.EmailId,'ZenDeavor' AS moduleName,us.activeStatus FROM `serviceentryhistorydata` hist LEFT JOIN UserInfo us ON hist.userId = us.userId
+WHERE MONTH(hist.`rowAddStp`)>=4 AND YEAR(hist.rowAddStp)=2021 AND us.activeStatus=1 GROUP BY hist.userId
+
+Wellness-Benefits <Wellness&Benefits@zensar.com>,HR Technology AND Analytics <hrtechanalytics@zensar.com>
+
+
+
+
+
+
+
+
+
+
+.payroll=c.payroll LEFT JOIN usleavereimbursementdeclaration usleave ON info.userId=usleave.userid WHERE c.mappingCountry='USA' and info.activeStatus=1 

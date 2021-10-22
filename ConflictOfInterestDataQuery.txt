@@ -1,0 +1,21 @@
+SELECT u.userId,u.userName,d.`declarationDate`,q.`questionId`,q.questionText,ciq.`answerId`,ciq.answerText,ct.`trailId`,ct.`trailText` FROM `conflictofinterestquestions` q LEFT JOIN `conflictofinterestuseranswers` ca ON q.questionId=ca.questionId
+LEFT JOIN `conflictofinterestqamapping` ciq ON ciq.`answerId`= ca.answerId 
+ LEFT JOIN userInfo u ON u.userId=ca.userId 
+LEFT JOIN `conflictofinterestuseranswertrail` ct ON ct.answerId=ca.answerId AND ct.userId=ca.userId
+LEFT JOIN  `conflictofinterestdeclaration` d ON d.userId=u.userId WHERE u.userId IS NOT NULL ORDER BY u.userId
+
+----------------------------
+
+SELECT u.userId,u.userName,d.`declarationDate`,q.`questionId`,q.questionText,ciq.`answerId`,ciq.answerText,ct.`trailId`,ct.`trailText` FROM `conflictofinterestquestions` q LEFT JOIN `conflictofinterestuseranswers` ca ON q.questionId=ca.questionId
+LEFT JOIN `conflictofinterestqamapping` ciq ON ciq.`answerId`= ca.answerId 
+ LEFT JOIN userInfo u ON u.userId=ca.userId 
+LEFT JOIN `conflictofinterestuseranswertrail` ct ON ct.answerId=ca.answerId AND ct.userId=ca.userId
+LEFT JOIN  `conflictofinterestdeclaration` d ON d.userId=u.userId WHERE u.userId IS NOT NULL GROUP BY q.`questionId`,u.userId,u.userName,d.`declarationDate`,ct.`trailId` ORDER BY u.userId
+
+
+
+-----------------------------
+
+SELECT u.userId,u.userName,n.`ndaDeclarationDate` FROM `ndadeclaration` n
+ LEFT JOIN userInfo u ON u.userId=n.userId 
+ GROUP BY u.userId ORDER BY u.userId 
