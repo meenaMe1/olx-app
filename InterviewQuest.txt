@@ -1,0 +1,94 @@
+package com.zensar.zenhelp.util;
+
+public class TestList {
+
+	public static void main(String[] args) {
+		
+		String abc = "1,2,3,4,5,6;2";
+		
+		String [] arr = abc.split(";");
+		
+		int k = Integer.parseInt(arr[1]);
+		
+		System.out.println(k);
+		
+		String [] numArr = arr[0].split(",");
+		
+		System.out.println(numArr.toString());
+		
+		int [] intArr = new int [numArr.length];
+		
+		int [] reverseArr = new int [numArr.length];
+		int [] bufferArr = new int [numArr.length];
+		  for(int l=0; l<numArr.length; ++l) {
+	    	  intArr[l] = Integer.parseInt(numArr[l]);
+	    	  System.out.println(intArr[l]);
+	    	  reverseArr[l]=Integer.parseInt(numArr[l]);
+		  }
+		  int n = numArr.length/k;
+		  System.out.println(n);
+		  reverse(intArr, 6, 2);
+		  
+	     /* for(int l=0; l<=n; ++l) {
+	    	  
+	    	
+	  			
+	    		  for (int left = 0, right = k- 1; 
+	                      left < right; left++, right--) {
+	          // swap the values at the left and right indices
+	    	   if(intArr[left]%k==0) {
+	          int temp = intArr[left];
+	          intArr[left]  = intArr[right];
+	          intArr[right] = temp;	
+	      }
+	     
+		}
+System.out.println(reverseArr);
+	}
+		*/  
+		  int arr1[] = {1, 2, 3, 4, 5, 6, 7, 8};
+	        int k1 = 3;
+	     
+	        int n1 = arr.length;
+	     
+	        reverse(arr1, n1, k1);
+	     
+	        for (int i = 0; i < n; i++)
+	            System.out.print(arr1[i] + " ");
+	    }
+  
+		 /* 
+		  for(int l=0; l<numArr.length; ++l) {
+	    	 
+	    	  System.out.println(intArr[l]);
+	    	 // reverseArr[l]=Integer.parseInt(numArr[l]);
+		  }*/
+	
+	
+	static void reverse(int arr[], int n, int k)
+    {
+        for (int i = 0; i <= n; ++i)
+        {
+            int left = i;
+     
+            // to handle case when k is not multiple
+            // of n
+            int right =0;
+            if(i+1 <n) 
+          right= i+1;
+            else
+            	right=i;	
+            int temp;
+             
+            // reverse the sub-array [left, right]
+            while (left < right)
+            {
+                temp=arr[left];
+                arr[left]=arr[right];
+                arr[right]=temp;
+                left+=1;
+                right=1;
+            }
+        }
+    }
+}

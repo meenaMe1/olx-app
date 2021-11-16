@@ -1,0 +1,477 @@
+package com.example.demo.test;
+
+public class Quest {
+
+	public static void main(String[] args) {
+		
+		int arr [] = {-2,-1,-7,7,10,1,-1,-2,-7,9,8,4};
+		
+		
+		// -2,-1,-7,-1,-2,-7,7,10,1,9,8,4
+		
+		for(int i=0; i<arr.length ;i++) {
+			
+			int temp =1;
+			
+		if(arr[i]<0) {
+			
+			int postiveNumb = arr[i];
+			int index = i;
+			int negativeNum = 0;
+			int indexNegNum =0;
+			for(int j=i+1 ; j < arr.length-1;j++) {
+				
+				if(arr[j] <0 ) {
+					
+					negativeNum =arr[j];
+					indexNegNum = j;
+				}
+				
+			}
+			
+			temp= arr[i];
+			arr[i] =negativeNum;
+			
+			if(i <= indexNegNum) {
+			arr[i+1]=postiveNumb;
+			//arr[]
+			}
+		}
+		
+			
+		}
+	}
+
+}
+
+
+--------------------------------------
+
+
+
+
+package com.example.demo.test;
+
+public class Car {
+	
+	private int modelNumber;
+	
+	private String color;
+	
+	private String brand;
+	
+	private int milage;
+
+	public int getModelNumber() {
+		return modelNumber;
+	}
+
+	public void setModelNumber(int modelNumber) {
+		this.modelNumber = modelNumber;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public int getMilage() {
+		return milage;
+	}
+
+	public void setMilage(int milage) {
+		this.milage = milage;
+	}
+
+	public Car(int modelNumber, String color, String brand, int milage) {
+		super();
+		this.modelNumber = modelNumber;
+		this.color = color;
+		this.brand = brand;
+		this.milage = milage;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((brand == null) ? 0 : brand.hashCode());
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + milage;
+		result = prime * result + modelNumber;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Car other = (Car) obj;
+		if (brand == null) {
+			if (other.brand != null)
+				return false;
+		} else if (!brand.equals(other.brand))
+			return false;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
+			return false;
+		if (milage != other.milage)
+			return false;
+		if (modelNumber != other.modelNumber)
+			return false;
+		return true;
+	}
+
+	public Car(String color, String brand) {
+		super();
+		this.color = color;
+		this.brand = brand;
+	}
+
+	@Override
+	public String toString() {
+		return "Car [modelNumber=" + modelNumber + ", color=" + color + ", brand=" + brand + ", milage=" + milage + "]";
+	}
+
+	
+}
+
+
+
+
+
+
+
+-------------------------------------
+
+
+package com.example.demo.test;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class CarMain {
+
+	public static void main(String[] args) {
+	
+		Car car1 = new Car(1, "Red", "Ford", 15);
+		Car car2 = new Car(2, "Black", "Maruti", 20);
+		Car car3 = new Car(3, "Blue", "Ford", 12);
+		Car car4 = new Car(4, "Black", "Kia", 15);
+		Car car5 = new Car(1, "Red", "Maruti", 18);
+		Car car6 = new Car(2, "Red", "Maruti", 17);
+		
+		List<Car> carList= new ArrayList<>();
+		carList.add(car1);
+		carList.add(car2);
+		carList.add(car3);
+		carList.add(car4);
+		carList.add(car5);
+		
+		Collection<Car> carColorList= functionColor(carList);
+		
+		System.out.println("Car based on color : "+carColorList);
+		Collection<Car> carColorbrandList= functionColorAndBrand(carList);
+		System.out.println("Car based on color and brand : "+carColorbrandList);
+	
+		List<Car> sortedBrandList = functionSortedBrandAndMilege(carList);
+		
+	System.out.println("sorted List : "+ sortedBrandList);
+	
+	
+	}
+	
+	public static Collection<Car> functionColor(List<Car> carList) {	
+		Map<String, Car> map = new HashMap<>();	
+		for(Car car: carList) {		
+		map.put(car.getColor(), car);
+		}
+		Collection<Car> unqcarList =  map.values();	
+	return unqcarList;	
+	}
+	public static Collection<Car> functionColorAndBrand(List<Car> carList) {
+		Map<String, Car> map = new HashMap<>();
+		for(Car car: carList) {
+			map.put(car.getColor().concat(car.getBrand()), car);
+		}
+		Collection<Car> unqcarList = map.values();		
+		return unqcarList;
+	}
+public static List<Car> functionSortedBrand(List<Car> carList) {
+		
+	List<Car> unqcarList = carList.stream().sorted(Comparator.comparing(Car:: getBrand)).collect(Collectors.toList());
+		return unqcarList;
+		
+	}
+
+public static List<Car> functionSortedBrandAndMilege(List<Car> carList) {
+	
+List<Car> unqcarList = carList.stream()
+.sorted(Comparator.comparing(Car:: getBrand).thenComparing(Car:: getMilage)).collect(Collectors.toList());
+	return unqcarList;
+	
+	
+	
+	
+	
+	
+	
+	
+	---------------------------------
+	
+	
+	package com.example.demo.test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+
+public class MultiThreadingEx {
+	
+	
+	static class A{
+		
+		
+		
+	}
+	
+static class B{
+		
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		
+		Map<A,B> map = new HashMap<>();
+		
+		map.put(new A() ,new B());
+		map.put(new A(), new B());
+		map.put(new A(), new B());
+		map.put(new A(), new B());
+		map.put(new A(), new B());
+		map.put(new A(), new B());
+		map.put(new A(), new B());
+		
+		System.out.println("size : "+map.size());
+		
+		map.get(new A());
+		
+	}
+
+}
+
+--------------------------------
+
+
+public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		/*
+		 * Write code to find the first non repeated character in the String.
+		 * 
+		 * 
+		 * If the word "teeter" is input then it should print 'r' as output. If the word
+		 * "stress" is input then it should print 't' as output.
+		 */
+		/*
+		 * String test="teeter";
+		 * 
+		 * char[] charArr = test.toCharArray();
+		 * 
+		 * System.out.println(charArr);
+		 * 
+		 * Map<Character,Integer> map =new LinkedHashMap<>();
+		 * 
+		 * for(int i=0; i< charArr.length;i++) {
+		 * 
+		 * if(!map.containsKey(charArr[i])) { map.put(charArr[i], 1);
+		 * 
+		 * }else { map.put(charArr[i], map.get(charArr[i])+1); } }
+		 * 
+		 * for(char c : map.keySet()) {
+		 * 
+		 * System.out.println(c); if(map.get(c)==1) { char nonRepeated = c;
+		 * System.out.println("Output Character : "+nonRepeated); break; } }
+		 */
+		
+		
+		
+		/*
+		 * inputList =
+		 * {"Java is good ","Python is like Python ","I love JAVA","SQL is interesting "
+		 * ,"Shell is not for me","I am still counting C++"} return a list that contains
+		 * only the input items that have Java in it. Note: Consider Case insensitivity,
+		 * i.e , Java or JAVA , both can be returned
+		 */
+		
+		List<String> strList = new ArrayList<>();
+		strList.add("Java is good");
+		strList.add("Python is like Python");
+		strList.add("I love JAVA");
+		strList.add("SQL is interesting");
+		strList.add("Shell is not for me");
+		List<String> outputList = strList.stream().filter(s -> (s.toLowerCase()).contains("java")).collect(Collectors.toList());
+		
+		System.out.println(outputList);
+	}
+
+-----------------------------------------------------
+
+
+package com.example.demo.test;
+
+class A {
+	
+	public  static void display() throws NullPointerException{
+		
+		System.out.println("A");
+	}
+	
+}
+
+class B extends A{
+	
+public  static void display(){
+		
+		System.out.println("B");
+	}
+	
+}
+
+
+public class DemoT {
+
+	public static void main(String[] args) {
+		
+		B a = new B();
+		
+		a.display();
+		
+	}
+
+}
+
+
+
+
+--------------------------------
+
+package com.example.demo.test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestD {
+
+	public static void main(String[] args) {
+	
+		int arr [] = {2,3,4,2,4,3,5,6,7,6,4,2,7,6,3,7};
+		
+		Map<Integer,Integer> map = new HashMap<>();
+		
+		for(int i=0; i< arr.length ; i++) {
+			
+			if(!map.containsKey(arr[i])) {
+				
+				map.put(arr[i],1);
+				
+			}else {
+				map.put(arr[i],map.get(arr[i])+1);
+			}
+			
+		}
+		
+		
+		for(int key : map.keySet()) {
+			
+			if(map.get(key)==1) {
+				System.out.println(key);
+			}
+		}
+
+	}
+
+}
+
+
+
+----------------------------------
+
+
+package com.example.demo.test;
+
+public class Quest {
+
+	public static void main(String[] args) {
+		
+		int arr [] = {-2,-1,-7,7,10,1,-1,-2,-7,9,8,4};
+		
+		
+		// -2,-1,-7,-1,-2,-7,7,10,1,9,8,4
+		
+		for(int i=0; i<arr.length ;i++) {
+			
+			int temp =1;
+			
+		if(arr[i]<0) {
+			
+			int postiveNumb = arr[i];
+			int index = i;
+			int negativeNum = 0;
+			int indexNegNum =0;
+			for(int j=i+1 ; j < arr.length-1;j++) {
+				
+				if(arr[j] <0 ) {
+					
+					negativeNum =arr[j];
+					indexNegNum = j;
+				}
+				
+			}
+			
+			temp= arr[i];
+			arr[i] =negativeNum;
+			
+			if(i <= indexNegNum) {
+			arr[i+1]=postiveNumb;
+			//arr[]
+			}
+		}
+		
+			
+		}
+	}
+
+}
+
+
+
+
+
+

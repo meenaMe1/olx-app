@@ -1,0 +1,203 @@
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+
+
+@Component
+public class LoginFilter implements Filter {
+	
+/*	@Autowired
+	private RequestHeaders requestHeaders;
+	*/
+	@Autowired
+	private SecurityUtil securityUtil;
+	RequestHeaders requestHeaders=new RequestHeaders();
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		
+		System.out.println("In Filter");
+		HttpServletRequest httpServletRequest=(HttpServletRequest) request;
+		HttpServletResponse httpServletResponse=(HttpServletResponse) response;
+
+		SecurityUtil util=new SecurityUtil();
+		util.addCORSHeaders(httpServletResponse);
+		if(util.checkHeaderData(httpServletRequest)=='Y') {
+			httpServletResponse.sendError(-1, "Un-Authorized Access");
+			return;
+		}else {
+			
+		setRequestHeaders(httpServletRequest);
+		httpServletRequest.setAttribute("requestHeaderData",requestHeaders);
+		
+		chain.doFilter(httpServletRequest, httpServletResponse);
+		}
+
+
+	}
+	private void setRequestHeaders(HttpServletRequest request) {
+		requestHeaders.setX_Requested_With(request.getHeader("X_Requested_With"));
+		requestHeaders.setUserName(request.getHeader("userName"));
+		requestHeaders.setPassword(request.getHeader("password"));
+	}
+	
+
+}
+
+
+-----------------------------------------------------------------
+
+
+package com.zensar.zenhelp.filter;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import com.zensar.zenhelp.bean.RequestHeaders;
+@Component
+public class UrlSecurityFilter implements Filter {
+	
+	RequestHeaders requestHeaders=new RequestHeaders();
+	
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			 {
+		HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse=(HttpServletResponse) response;
+        try {
+			String reqUrl  ="";
+	        boolean isUrlPram= Boolean.FALSE;
+	        String reqUrls= req.getRequestURI();
+	     String queryString = req.getQueryString();
+	     String methodType = req.getMethod();
+	     String url ="";
+	     if(methodType.equalsIgnoreCase("POST")) {
+	     if(queryString != null && !queryString.isEmpty()) {
+	     url = reqUrls+queryString;
+	     }else {
+	    	 url=reqUrls;
+	     }
+	    // Enumeration<String> paramNames=  req.getParameterNames();
+	     System.out.println(url);
+	       // String url ="https://zentalentdev.zensar.com/authentication-zenhelp/login?(select*from(select(sleep(20)))a";
+	        String [] urlArr=url.split("/");
+		     int  i=   urlArr.length;
+		     if(i >=1) {
+		       String splitedUrl = urlArr[i-1];
+		       if(splitedUrl.contains("?")) {
+		       splitedUrl= splitedUrl.replace("?", " ");
+		       String [] arr=splitedUrl.split(" ");
+		       if(arr.length >=1) {
+		        reqUrl = arr[0];
+		        String urlparam = arr[1];
+		        if(!urlparam.isEmpty()&& urlparam != null) {
+		        	isUrlPram = Boolean.TRUE;
+		        }
+		        System.out.println(urlparam);
+		       }
+		    
+		       }
+		       else {
+		    	   reqUrl=  splitedUrl;
+		       }
+		       System.out.println(reqUrl);
+		       if(reqUrl.equals("login") || reqUrl.equals("validateEncryptedToken") || reqUrl.equals("logout") ||reqUrl.equals("backDoorLogin") ||reqUrl.equals("validateEncryptedTokenForBackDoor") && !isUrlPram) {
+		    	   setRequestHeaders(req);
+		   		//req.setAttribute("requestHeaderData",requestHeaders);
+		       }
+		       else{
+		    	   httpServletResponse.setStatus(-3);
+			      	httpServletResponse.sendError(-3, "Bad Request");
+		       return;
+		       }
+		     }}else{
+		    	   httpServletResponse.setStatus(405);
+			      	httpServletResponse.sendError(405, "Method not allowed");
+		       return;
+		       }
+	        chain.doFilter(req, httpServletResponse);
+		}
+		catch(Exception e) {
+			e.getMessage();
+			e.printStackTrace();
+		}
+	}
+	private void setRequestHeaders(HttpServletRequest request) {
+		requestHeaders.setX_Requested_With(request.getHeader("X_Requested_With"));
+		requestHeaders.setUserName(request.getHeader("userName"));
+		requestHeaders.setPassword(request.getHeader("password"));
+	}
+}
+
+
+-------------------------------------
+
+
+package com.zensar.zenhelp.filter;
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
+import com.zensar.zenhelp.util.SecurityUtil;
+
+
+public class ValidateEncryptedToken implements Filter {
+	
+	@Autowired
+	private SecurityUtil securityUtil;
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		System.out.println("In validate filterS");
+		HttpServletRequest httpServletRequest=(HttpServletRequest) request;
+		HttpServletResponse httpServletResponse=(HttpServletResponse) response;
+		String str=httpServletRequest.getHeader("encryptedToken");
+		String s=httpServletRequest.getHeader("handshakeToken");
+		SecurityUtil util=new SecurityUtil();
+		util.addCORSHeaders(httpServletResponse);
+		char ch=util.checkHeaderDataForEncryptedTokenAPI(httpServletRequest);
+		if(ch=='Y') {
+			httpServletResponse.sendError(-1, "Un-Authorized Access");
+			return;
+		}
+		/*if(securityUtil.checkHeaderDataForEncryptedTokenAPI(httpServletRequest)=='Y') {
+			httpServletResponse.sendError(-1, "Un-Authorized Access");
+			return;
+		}*/
+			
+		chain.doFilter(httpServletRequest, httpServletResponse);
+	}
+
+}

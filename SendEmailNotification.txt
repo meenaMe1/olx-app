@@ -1,0 +1,184 @@
+	  public void sendEmailNotificationWithAttachment(String emailContent , String from , String to, String cc, String bcc, String subject,String apiUrl,String filePath ) throws Exception {
+				System.out.println("start of email notification to:" + to);
+				
+				try {
+					Transport.send(createMIMEMessage(emailContent,from,to,cc,bcc,subject,apiUrl ,filePath));
+				} catch (AddressException e3) {
+					System.out.println(e3);
+					e3.printStackTrace();
+					throw e3;
+				} catch (SendFailedException e1) {
+					System.out.println(e1.getInvalidAddresses());
+					e1.printStackTrace();
+					throw e1;
+				} catch (MessagingException e2) {
+					System.out.println(e2.getNextException());
+					e2.printStackTrace();
+					throw e2;
+				}
+
+				catch (Exception e) {
+
+					e.printStackTrace();
+					throw e;
+				}
+				}
+		  
+		  
+		  
+		  private Message createMIMEMessage(String emailContent, String from, String to, String cc, String bcc, String subject, String apiUrl, String filePath) throws AddressException, MessagingException, IOException {
+			  	
+				String smtpHostName = null;
+				String smtpHostAddress = null;
+				smtpHostAddress = "10.42.2.159";
+				// smtpHostName="zeniam.ind.zensar.com";
+				smtpHostName = "mail.smtp.host";
+				Properties props = System.getProperties();
+				// Setup mail server
+				props.put(smtpHostName, smtpHostAddress);
+				javax.mail.Session session = javax.mail.Session.getDefaultInstance(props, null);
+				MimeMessage message = new MimeMessage(session);
+
+				message.setFrom(new InternetAddress(from));
+				message.setRecipients(Message.RecipientType.TO, to);
+				message.setRecipients(Message.RecipientType.CC, cc);
+				message.setRecipients(Message.RecipientType.BCC, bcc);
+				message.setSubject(subject);
+
+
+				// Create the message part
+				BodyPart messageBodyPart = new MimeBodyPart();
+				
+				messageBodyPart.setContent(emailContent, "text/html");
+
+				// Create a multipar message
+				Multipart multipart = new MimeMultipart();
+
+				// Set text message part
+				multipart.addBodyPart(messageBodyPart);
+
+				// Part two is attachment
+				
+				
+				 File file = new File(filePath);
+				 InputStream inputStream =null;
+				 if(file!=null && file.exists()) {
+					inputStream= new BufferedInputStream(new FileInputStream(file));
+				 }
+				 ByteArrayOutputStream outputStream = null;
+				 MimeBodyPart textBodyPart = new MimeBodyPart();
+			        textBodyPart.setText(emailContent);
+
+			        //now write the PDF content to the output stream
+			        outputStream = new ByteArrayOutputStream();
+			        byte[] bytes1 = outputStream.toByteArray();
+
+			        //construct the pdf body part
+			        if(inputStream!=null) {
+			        DataSource dataSource = new ByteArrayDataSource(inputStream, "application/pdf");
+			        MimeBodyPart pdfBodyPart = new MimeBodyPart();
+			        pdfBodyPart.setDataHandler(new DataHandler(dataSource));
+			        pdfBodyPart.setFileName("ProprietaryInformationInnovationandSolicitationofEmployees.pdf");
+
+			        multipart.addBodyPart(pdfBodyPart);
+			        }
+				
+				System.out.println("message body part is" +messageBodyPart);
+				// Send the complete message parts
+				message.setContent(multipart);
+				System.out.println("message sent successfully....");
+
+				return message;
+		}
+		
+		
+		
+		 public void generateQRCodeImage(String text, int width, int height, String filePath)
+		            throws WriterException, IOException {
+		        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+		        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+
+		        Path path = FileSystems.getDefault().getPath(filePath);
+		        MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+		    }
+		  
+		  
+		  public String createFileDirectory(String basePath,String destinationPath) throws Exception
+			{
+			
+					try {
+						 File dir = new File(basePath+destinationPath);
+						         boolean exists = dir.exists();
+						  System.out.println(exists);
+						boolean isDirectoryCreated = (new File( basePath+destinationPath)).mkdirs();
+						 System.out.println(isDirectoryCreated);
+						if (isDirectoryCreated || exists) {
+							//System.out.println("Copying..........");
+							
+							//uploadedFile.transferTo(destinationFile);
+							String fileName=basePath+destinationPath;
+							return fileName;
+						}
+						else 
+							return "";
+					}
+					catch(Exception e)
+					{
+						System.out.println("Exception in Class - SecurityUtil Method - createFileDirectory "+e.getMessage());
+						throw e;
+					}
+				
+			}
+		  
+		  public String formatDate(String dateToBeFormated) {
+				String formattedDate ="";
+				try {
+				SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat format2 = new SimpleDateFormat("MMMM dd, yyyy");
+				Date date;
+				if(dateToBeFormated!= null && !dateToBeFormated.isEmpty()) {
+					date = format1.parse(dateToBeFormated);
+					formattedDate =format2.format(date);
+				}} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				return formattedDate; 
+			}
+		  public List<String> getListOfMonth (){
+			  List<String> list = new ArrayList<String>(); 
+			  list.add("March");
+			  list.add("April");
+			  list.add("May");
+			  list.add("June");
+			  list.add("July");
+			  list.add("August");
+			  list.add("September");
+			  list.add("October");
+			  list.add("November");
+			  list.add("December");
+			  list.add("January");
+			  list.add("February");
+			  return list;
+			}
+			
+			
+			
+	 public static boolean isValid(String s) 
+	 {
+	    	Pattern p = Pattern.compile("(0/91)?[6-9][0-9]{9}"); 
+	     Matcher m = p.matcher(s); 
+	     return (m.find() && m.group().equals(s)); 
+	 } 
+	 
+	 
+	 
+	 	public static HttpServletResponse addCORSHeaders(HttpServletResponse response) {
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT,DELETE");
+		response.addHeader("Access-Control-Allow-Headers", "Content-Type");
+		response.addHeader("Access-Control-Max-Age", "1800");
+		response.setHeader("Content-Type", "application/json");
+		return response;
+	}

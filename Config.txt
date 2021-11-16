@@ -1,0 +1,18 @@
+server.port=91
+spring.application.name=config-service-zenhelp
+
+
+#spring.cloud.config.server.native.search-locations=file:///D:/SVN Code/ZenHelp - Revamp Services/config-service-zenhelp/centralRepo
+#spring.cloud.config.server.native.searchLocations=file:////root/.jenkins/workspace/config-service-zenhelp/centralRepo
+#spring.cloud.config.server.native.searchLocations==file:///usr/local/tomcat8/Microservices/centralRepo
+
+#spring.cloud.config.server.native.search-locations=file:///D:/SVN Code/ZenHelp - Revamp Services/config-service-zenhelp/centralRepo
+#spring.cloud.config.server.native.searchLocations=file:////root/.jenkins/workspace/config-service-zenhelp/centralRepo
+
+#spring.cloud.config.server.native.searchLocations=/usr/local/microservices/centralRepo
+
+spring.cloud.config.server.native.searchLocations=file:///D:/SpringBoot/config-service-zenhelp/centralRepo
+
+
+#spring.cloud.config.server.native.searchLocations=file:///centralRepo
+spring.profiles.active=native
