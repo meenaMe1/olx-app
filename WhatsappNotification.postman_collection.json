@@ -1,0 +1,48 @@
+{
+	"id": "7966c7ba-3326-4efa-accf-420bab2e1f37",
+	"name": "WhatsappNotification",
+	"description": "",
+	"auth": null,
+	"events": null,
+	"variables": [],
+	"order": [
+		"f97aaf02-99bf-4169-992e-15b4019e8245"
+	],
+	"folders_order": [],
+	"folders": [],
+	"requests": [
+		{
+			"id": "f97aaf02-99bf-4169-992e-15b4019e8245",
+			"name": "sendWhatsAppNotification",
+			"url": "localhost:88/sendWhatsAppNotification",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "handshakeToken",
+					"value": "1203sendemail2018",
+					"type": "text",
+					"enabled": true,
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"type": "text",
+					"enabled": true,
+					"description": ""
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": null,
+			"folder": null,
+			"rawModeData": "{\n\t\"phoneNumber\":\"8319618433\",\n\t\"notificationMessage\":\"Hi Meenakshi %0A Welcome to Zensar On- boarding %0D%0A Zensar technologies\"\n}",
+			"headers": "handshakeToken: 1203sendemail2018\nContent-Type: application/json\n",
+			"pathVariables": {}
+		}
+	]
+}

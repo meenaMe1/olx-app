@@ -1,0 +1,217 @@
+docker --version
+
+docker pull hello-world :- Only pulled image from docker hub
+
+docker run hello-world :- from hello-world image container is getting created
+
+docker run -it ubuntu bash
+
+docker images :- list all images available on docker host
+
+docker rmi image-id/name-of-images
+
+docker rmi image-id/name-of-images image-id/name-of-images image-id/name-of-images
+
+-it
+-i -t
+
+
+Docker client (Docker CLI)
+
+Docker Host(Server/deamon)
+
+Docker registry (hub
+
+docker --version
+
+ 
+
+docker pull hello-world :- Only pulled image from docker hub
+
+ 
+
+docker run hello-world :- from hello-world image container is getting created
+
+ 
+
+docker run -it ubuntu bash
+
+ 
+
+docker images :- list all images available on docker host
+
+ 
+
+docker rmi image-id/name-of-images
+
+ 
+
+docker rmi image-id/name-of-images image-id/name-of-images   image-id/name-of-images
+
+ 
+
+ 
+
+ 
+
+ 
+
+List of all running container :- docker container ls
+
+ 
+
+ 
+
+ 
+
+Running + Stopped container   docker container ls --all
+                  docker container ls -a
+
+ 
+
+How to remove container       docker container rm container-id/name-of-the-container
+
+ 
+
+
+How to remove all stopped containers :- docker container rm $(docker container ls -aq)
+
+ 
+
+                    docker container prune
+
+ 
+
+
+                    docker container rm container-id1 container-id2
+
+ 
+
+ 
+
+
+docker ps
+
+ 
+
+
+docker container ls
+docker container ps
+
+ 
+
+How to start container in deatch mode 
+    docker  run -d redis
+
+ 
+
+How to rename the container
+
+ 
+
+    docker container rename container-name newName
+
+ 
+
+
+    docker container attach container-id
+
+ 
+
+    docker container logs container-id
+
+ 
+
+    docker history image-id
+
+ 
+
+
+How to create our own image
+    
+    1 Base image :- ubuntu docker run -it ubuntu 
+
+ 
+
+    apt-get update
+
+ 
+
+    apt-get install git 
+
+ 
+
+    git --version
+
+ 
+
+    docker commit container-id  sharadrajore/my-image
+
+ 
+
+    docker images  :  my-image
+
+ 
+
+    docker login
+
+ 
+
+    docker push sharadrajore/my-image
+
+ 
+
+    
+
+ 
+
+    
+
+ 
+
+ 
+
+    docker-id/name-of-image
+
+ 
+
+    docker login : username,password
+
+ 
+
+    docker push sharadrajore/my-container:v1
+
+ 
+
+ 
+
+ 
+
+Docker client (Docker CLI)
+
+ 
+
+Docker Host(Server/deamon)
+
+ 
+
+Docker registry (hub)
+
+ 
+
+
+*How to see images on local machine
+
+ 
+
+*docker attach command
+
+
+
+
+docker build . ---  to build an image 
+
+
+Docker compose up
+
+docker compose down

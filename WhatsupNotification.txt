@@ -1,0 +1,31 @@
+public BaseResponse sendWhatsAppNotification(WhatsAppNotificationDO whatsAppNotificationDO) {
+		BaseResponse baseResponse = new BaseResponse();
+		if(whatsAppNotificationDO != null ) {
+			if (securityUtil.isValid(whatsAppNotificationDO.getPhoneNumber())){  
+			String	phoneNumber="+91"+whatsAppNotificationDO.getPhoneNumber();
+	        String notification = whatsAppNotificationDO.getNotificationMessage();   
+			OkHttpClient client = new OkHttpClient();
+		
+			Request request = new Request.Builder()
+			  .url("https://panel.apiwha.com/send_message.php?apikey=41212B2JF2GENES7UJVP&number="+phoneNumber+"&text="+notification+"")
+			  .get()
+			  .build();
+
+			try {
+				Response response = client.newCall(request).execute();
+				if(response.isSuccessful())
+					baseResponse=securityUtil.baseResponse(1);
+					baseResponse.setDetails(response);
+				
+				System.out.println(response);
+			} catch (Exception e) {
+				baseResponse=securityUtil.baseResponse(-2);
+				e.printStackTrace();
+			}}}else {
+				baseResponse=securityUtil.baseResponse(-4);
+			
+		}
+	return baseResponse;
+	}
+	
+	
